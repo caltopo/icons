@@ -125,12 +125,14 @@ find "$ROOT" -type d | sort | while read -r dir; do
             [ -f "$file" ] || continue
             file_name=$(basename "$file")
             file_rel=$(realpath --relative-to="$ROOT" "$file")
+            # Updated raw GitHub URL for image
             file_url="$GITHUB_URL/blob/$BRANCH/$file_rel"
+            file_src="https://raw.githubusercontent.com/caltopo/icons/$BRANCH/$file_rel"
 
             if [ "$LABELS" = "yes" ]; then
-                echo "<div class='icon-item'><a href='$file_url'><img src='$file_rel' alt='$file_name' title='$file_name'><div>$file_name</div></a></div>" >> "$OUTPUT"
+                echo "<div class='icon-item'><a href='$file_url'><img src='$file_src' alt='$file_name' title='$file_name'><div>$file_name</div></a></div>" >> "$OUTPUT"
             else
-                echo "<div class='icon-item'><a href='$file_url'><img src='$file_rel' alt='$file_name' title='$file_name'></a></div>" >> "$OUTPUT"
+                echo "<div class='icon-item'><a href='$file_url'><img src='$file_src' alt='$file_name' title='$file_name'></a></div>" >> "$OUTPUT"
             fi
         done
 
