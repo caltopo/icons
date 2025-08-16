@@ -1,5 +1,11 @@
 # icons
 
+## Gallery
+
+https://caltopo.github.io/icons/
+
+## Summary
+
 This repository provides community-provided icons for import into CalTopo.
 
 - Icons must not be larger than 24x24. They will be scaled to 24x24 by CalTopo otherwise.
