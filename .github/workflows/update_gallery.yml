@@ -20,7 +20,7 @@ jobs:
 
     - name: Generate icon gallery
       run: |
-        ./generate-gallery.sh --labels no --output index.html
+        ./generate-gallery.sh --labels no --output /tmp/index.html
 
     - name: Deploy to gh-pages
       env:
@@ -30,21 +30,24 @@ jobs:
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-        # Create temporary folder for gh-pages content
-        mkdir temp_pages
-        cp index.html temp_pages/
+        # Fetch and checkout gh-pages branch
+        git fetch origin gh-pages
+        git checkout gh-pages
 
-        cd temp_pages
+        # Copy the new index.html
+        cp /tmp/index.html ./index.html
 
-        # Initialize a new git repo in temp folder
-        git init
-        git remote add origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-        git checkout -b gh-pages
+        # Check if index.html actually changed
+        if git diff --quiet index.html; then
+          echo "No changes in index.html. Skipping commit."
+          exit 0
+        fi
 
         # Add files and commit
         git add index.html
         DATE=$(date -u +"%Y-%m-%d")
         git commit -m "Update icon gallery - $DATE [skip ci]"
 
-        # Force push to gh-pages
-        git push -f origin gh-pages
+        # Push to gh-pages
+        git push origin gh-pages
+
