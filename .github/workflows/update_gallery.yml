@@ -1,0 +1,50 @@
+name: Update Icon Gallery
+
+on:
+  schedule:
+  - cron: '0 0 * * *'  # Runs every day at midnight UTC
+  workflow_dispatch:      # Allows manual run
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0   # fetch full history for branch switching
+
+    - name: Make script executable
+      run: chmod +x ./generate-gallery.sh
+
+    - name: Generate icon gallery
+      run: |
+        ./generate-gallery.sh --labels no --output index.html
+
+    - name: Deploy to gh-pages
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Configure git identity
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+        # Create temporary folder for gh-pages content
+        mkdir temp_pages
+        cp index.html temp_pages/
+
+        cd temp_pages
+
+        # Initialize a new git repo in temp folder
+        git init
+        git remote add origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+        git checkout -b gh-pages
+
+        # Add files and commit
+        git add index.html
+        DATE=$(date -u +"%Y-%m-%d")
+        git commit -m "Update icon gallery - $DATE [skip ci]"
+
+        # Force push to gh-pages
+        git push -f origin gh-pages
