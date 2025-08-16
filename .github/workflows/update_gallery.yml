@@ -20,7 +20,7 @@ jobs:
 
     - name: Generate icon gallery
       run: |
-        ./generate-gallery.sh --labels no --output /tmp/index.html
+        ./generate-gallery.sh --labels yes --output /tmp/index.html
 
     - name: Deploy to gh-pages
       env:
