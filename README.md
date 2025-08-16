@@ -7,8 +7,7 @@ This repository provides community-provided icons for import into CalTopo.
   - You can use the Python tool "scour" to reduce the size of SVG files (e.g. `scour -i big.svg -o small.svg`).
 - Icons can be in SVG or PNG format.
   - For those using GiMP to create icons, note that GiMP does not support creating SVG images.
-  - SVG icons may not be able to have their colors set, even if you set the colorizable setting in CalTopo.
-    There is a Python script make-colorizable.py here that may fix the problem, but it may not.
+  - SVG icons may not be able to have their colors overridden in CalTopo, even if you set the colorable setting.
 - CalTopo provides some custom icon features available only through a Pro subscription
   - See documentation here: https://training.caltopo.com/all_users/accounts/account-items#icons
   - Custom icons can be stored in your CalTopo account and added to your map through the normal icon selector dialog window.
