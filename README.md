@@ -25,6 +25,8 @@ This repository provides community-provided icons for import into CalTopo.
 - There are also some free icons available here:
   - https://mapicons.mapsmarker.com/category/markers/
   - https://github.com/free-icons/free-icons
+  - https://www.freepik.com/
+  - https://www.flaticon.com/icons
 - ChatGPT or Google Gemini may also be used to generate icons, but the quality of the generated icons vary.
 
 _(This repository is not affilitated in any way with the CalTopo app or CalTopo, LLC)_
