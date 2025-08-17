@@ -58,17 +58,20 @@ for file in "${files[@]}"; do
             target="$outdir/$filename"
         fi
 
-        magick "$file" \
-            -resize 24x24 \          # scale to fit within 24x24
-            -background none \       # transparent background
-            -gravity center \        # center the image
-            -extent 24x24 \          # pad to exactly 24x24
-            "$target"
-
-        echo "Resized $file -> $target"
+        if magick "$file" \
+            -resize 24x24 \
+            -background none \
+            -gravity center \
+            -extent 24x24 \
+            "$target"; then
+            echo "Resized [$file] -> [$target]"
+        else
+            echo "Error: Failed to resize [$file], skipping."
+        fi
     else
-        echo "Warning: $file not found, skipping."
+        echo "Warning: [$file] not found, skipping."
     fi
 done
 
 echo "All done!"
+
