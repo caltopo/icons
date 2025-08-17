@@ -9,6 +9,7 @@ https://caltopo.github.io/icons/
 This repository provides community-provided icons for import into CalTopo.
 
 - Icons must not be larger than 24x24. They will be scaled to 24x24 by CalTopo otherwise.
+  - To find PNG files that are not 24x24, run this command to search under the given directory: `find /path/to/dir -type f -iname "*.png" -exec identify -format "%w %h %i\n" {} \; | awk '($1 != 24 || $2 != 24) {print $3}'`
 - Icon files must not be greater than 10KB in size. They will be rejected by CalTopo otherwise.
   - You can use the Python tool "scour" to reduce the size of SVG files (e.g. `scour -i big.svg -o small.svg`).
 - Icons can be in SVG or PNG format.
