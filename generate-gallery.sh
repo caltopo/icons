@@ -5,12 +5,11 @@ OUTPUT="index.html"
 ROOT="."
 GITHUB_URL="http://github.com/caltopo/icons"
 BRANCH="main"
-LABELS="no"      # default changed to no
 COLUMNS=4        # default columns for directories
 
 # Function to display help
 show_help() {
-    echo "Usage: $0 [--github URL] [--branch BRANCH] [--output FILE] [--root DIR] [--labels yes|no] [--columns 1-4] [--help]"
+    echo "Usage: $0 [--github URL] [--branch BRANCH] [--output FILE] [--root DIR] [--columns 1-6] [--help]"
     echo ""
     echo "Generate an HTML gallery of all PNG icons in subdirectories (recursively) with GitHub links."
     echo ""
@@ -19,7 +18,6 @@ show_help() {
     echo "  --branch BRANCH         Branch name (default: main)"
     echo "  --output FILE, -o FILE  Output HTML file (default: index.html)"
     echo "  --root DIR, -r DIR      Root directory to scan (default: current directory)"
-    echo "  --labels yes|no         Show image labels (default: no)"
     echo "  --columns N             Number of directory columns in grid (1-6, default: 4)"
     echo "  --help                  Display this help message"
 }
@@ -31,19 +29,12 @@ while [[ "$#" -gt 0 ]]; do
         --branch) BRANCH="$2"; shift ;;
         --output|-o) OUTPUT="$2"; shift ;;
         --root|-r) ROOT="$2"; shift ;;
-        --labels) LABELS="$2"; shift ;;
         --columns) COLUMNS="$2"; shift ;;
         --help) show_help; exit 0 ;;
         *) echo "Unknown parameter: $1"; show_help; exit 1 ;;
     esac
     shift
 done
-
-# Validate labels option
-if [[ "$LABELS" != "yes" && "$LABELS" != "no" ]]; then
-    echo "Error: --labels must be 'yes' or 'no'"
-    exit 1
-fi
 
 # Validate columns
 if ! [[ "$COLUMNS" =~ ^[1-6]$ ]]; then
@@ -62,6 +53,21 @@ cat <<EOF > "$OUTPUT"
 body { font-family: Arial, sans-serif; padding: 20px; }
 h2 { margin-top: 0; margin-bottom: 10px; font-size: 16px; }
 
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: #0077cc; /* subtle blue hover effect */
+}
+
+.controls {
+    margin: 15px 0 25px 0;
+    font-size: 14px;
+}
+
 .dir-grid {
     display: grid;
     grid-template-columns: repeat($COLUMNS, 1fr);
@@ -74,40 +80,59 @@ h2 { margin-top: 0; margin-bottom: 10px; font-size: 16px; }
 }
 
 .icon-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    justify-items: center;
+    gap: 12px;  /* normal spacing with labels */
 }
 
-a { text-decoration: none; color: inherit; }
-.icon-item img { display: block; max-width: 100%; }
-EOF
-
-if [ "$LABELS" = "yes" ]; then
-    cat <<'EOF' >> "$OUTPUT"
 .icon-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100px;
+    width: 70px;
 }
-.icon-item div {
-    margin-top: 5px;
+
+.icon-item a {
+    display: block;
+}
+
+.icon-item img {
+    max-width: 100%;
+    height: auto;
+}
+
+.icon-label {
+    margin-top: 3px;
     font-size: 12px;
     text-align: center;
+    display: none;
 }
-EOF
-else
-    cat <<'EOF' >> "$OUTPUT"
-.icon-item { display: inline-block; }
-EOF
-fi
 
-cat <<'EOF' >> "$OUTPUT"
+.show-labels .icon-label {
+    display: block;
+}
+
+body:not(.show-labels) .icon-grid {
+    gap: 4px;   /* squeeze tighter when labels hidden */
+}
 </style>
+<script>
+function toggleLabels() {
+    const checked = document.getElementById('labelToggle').checked;
+    if (checked) {
+        document.body.classList.add('show-labels');
+    } else {
+        document.body.classList.remove('show-labels');
+    }
+}
+</script>
 </head>
 <body>
 <h1>Icon Gallery</h1>
+<div class="controls">
+  <label><input type="checkbox" id="labelToggle" onchange="toggleLabels()"> Show Labels</label>
+</div>
 <div class="dir-grid">
 EOF
 
@@ -125,15 +150,10 @@ find "$ROOT" -type d | sort | while read -r dir; do
             [ -f "$file" ] || continue
             file_name=$(basename "$file")
             file_rel=$(realpath --relative-to="$ROOT" "$file")
-            # Updated raw GitHub URL for image
             file_url="$GITHUB_URL/blob/$BRANCH/$file_rel"
             file_src="https://raw.githubusercontent.com/caltopo/icons/$BRANCH/$file_rel"
 
-            if [ "$LABELS" = "yes" ]; then
-                echo "<div class='icon-item'><a href='$file_url'><img src='$file_src' alt='$file_name' title='$file_name'><div>$file_name</div></a></div>" >> "$OUTPUT"
-            else
-                echo "<div class='icon-item'><a href='$file_url'><img src='$file_src' alt='$file_name' title='$file_name'></a></div>" >> "$OUTPUT"
-            fi
+            echo "<div class='icon-item'><a href='$file_url'><img src='$file_src' alt='$file_name' title='$file_name'></a><div class='icon-label'>$file_name</div></div>" >> "$OUTPUT"
         done
 
         echo "</div></div>" >> "$OUTPUT"
