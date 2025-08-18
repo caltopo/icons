@@ -3,29 +3,29 @@
 # Default values
 OUTPUT="index.html"
 ROOT="."
-GITHUB_URL="http://github.com/caltopo/icons"
+GITHUB_ORG_REPO="caltopo/icons"
 BRANCH="main"
-COLUMNS=4        # default columns for directories
+COLUMNS=3        # default columns for directories
 
 # Function to display help
 show_help() {
-    echo "Usage: $0 [--github URL] [--branch BRANCH] [--output FILE] [--root DIR] [--columns 1-6] [--help]"
+    echo "Usage: $0 [--github-org-repo ORG/REPO] [--branch BRANCH] [--output FILE] [--root DIR] [--columns 1-6] [--help]"
     echo ""
     echo "Generate an HTML gallery of all PNG icons in subdirectories (recursively) with GitHub links."
     echo ""
     echo "Options:"
-    echo "  --github URL            Base GitHub URL of the repo (default: $GITHUB_URL)"
-    echo "  --branch BRANCH         Branch name (default: main)"
-    echo "  --output FILE, -o FILE  Output HTML file (default: index.html)"
-    echo "  --root DIR, -r DIR      Root directory to scan (default: current directory)"
-    echo "  --columns N             Number of directory columns in grid (1-6, default: 4)"
-    echo "  --help                  Display this help message"
+    echo "  --github-org-repo ORG/REPO  GitHub org/repo (default: $GITHUB_ORG_REPO)"
+    echo "  --branch BRANCH              Branch name (default: $BRANCH)"
+    echo "  --output FILE, -o FILE       Output HTML file (default: $OUTPUT)"
+    echo "  --root DIR, -r DIR           Root directory to scan (default: current directory)"
+    echo "  --columns N                  Number of directory columns in grid (1-6, default: $COLUMNS)"
+    echo "  --help                       Display this help message"
 }
 
 # Parse arguments
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        --github) GITHUB_URL="$2"; shift ;;
+        --github-org-repo) GITHUB_ORG_REPO="$2"; shift ;;
         --branch) BRANCH="$2"; shift ;;
         --output|-o) OUTPUT="$2"; shift ;;
         --root|-r) ROOT="$2"; shift ;;
@@ -59,8 +59,9 @@ a {
     transition: color 0.2s;
 }
 
-a:hover {
-    color: #0077cc; /* subtle blue hover effect */
+/* Directory link hover red */
+.directory > h2 > a:hover {
+    color: #ff0000;
 }
 
 .controls {
@@ -100,6 +101,11 @@ a:hover {
 .icon-item img {
     max-width: 100%;
     height: auto;
+    transition: filter 0.2s;
+}
+
+.icon-item img:hover {
+    filter: brightness(0) saturate(100%) invert(16%) sepia(97%) saturate(7483%) hue-rotate(357deg) brightness(104%) contrast(101%);
 }
 
 .icon-label {
@@ -141,19 +147,19 @@ find "$ROOT" -type d | sort | while read -r dir; do
     png_files=("$dir"/*.png)
     if [ -e "${png_files[0]}" ]; then
         folder_name=$(realpath --relative-to="$ROOT" "$dir")
-        folder_url="$GITHUB_URL/tree/$BRANCH/$folder_name"
+        folder_url="https://github.com/$GITHUB_ORG_REPO/tree/$BRANCH/$folder_name"
         echo "<div class='directory'>" >> "$OUTPUT"
-        echo "<h2><a href='$folder_url'>$folder_name</a></h2>" >> "$OUTPUT"
+        echo "<h2><a href='$folder_url' target='_blank'>$folder_name</a></h2>" >> "$OUTPUT"
         echo "<div class='icon-grid'>" >> "$OUTPUT"
 
         for file in "${png_files[@]}"; do
             [ -f "$file" ] || continue
             file_name=$(basename "$file")
             file_rel=$(realpath --relative-to="$ROOT" "$file")
-            file_url="$GITHUB_URL/blob/$BRANCH/$file_rel"
-            file_src="https://raw.githubusercontent.com/caltopo/icons/$BRANCH/$file_rel"
+            file_url="https://github.com/$GITHUB_ORG_REPO/blob/$BRANCH/$file_rel"
+            file_src="https://raw.githubusercontent.com/$GITHUB_ORG_REPO/$BRANCH/$file_rel"
 
-            echo "<div class='icon-item'><a href='$file_url'><img src='$file_src' alt='$file_name' title='$file_name'></a><div class='icon-label'>$file_name</div></div>" >> "$OUTPUT"
+            echo "<div class='icon-item'><a href='$file_url' target='_blank'><img src='$file_src' alt='$file_name' title='$file_name'></a><div class='icon-label'>$file_name</div></div>" >> "$OUTPUT"
         done
 
         echo "</div></div>" >> "$OUTPUT"
